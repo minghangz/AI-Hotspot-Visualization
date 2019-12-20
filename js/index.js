@@ -69,7 +69,7 @@ function drawPack(d){
         .attr("pointer-events", null)
         .on("mouseover", function(d) {select(d); d3.select(this).attr("stroke", "#000"); })
         .on("mouseout", function() {unselect(); d3.select(this).attr("stroke", null); })
-        .on("click", d => focus !== d && (zoom(d), d3.event.stopPropagation()));
+        .on("click", d => click(d));
 
     const label = svg.select("g[class=label]")
         .style("font", "10px sans-serif")
@@ -111,6 +111,19 @@ function drawPack(d){
                 const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
                 return t => zoomTo(i(t));
             });
+    }
+    function click(d){
+        if(d === focus) return;
+        if(d.depth != 2){
+            zoom(d);
+        } else{
+            console.log($(event.target).attr("select"));
+            if($(event.target).attr("select") === "true")
+                $(event.target).attr("select", "false");
+            else
+                $(event.target).attr("select", "true");
+        }
+        d3.event.stopPropagation();
     }
     function pack(data){
         return d3.pack()

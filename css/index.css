@@ -10,3 +10,9 @@ body{
 .Pack .active{
     opacity: 0.5;
 }
+[select=true]{
+    fill: #0099CC;
+}
+[select=true]{
+    opacity: 0.5;
+}
