@@ -1,0 +1,12 @@
+.Matrix{
+    transform: translate(500px, -500px);
+}
+body{
+    background-color: #f6f6f6;
+}
+.active{
+    fill: #0099CC;
+}
+.Pack .active{
+    opacity: 0.5;
+}
