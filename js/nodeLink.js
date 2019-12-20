@@ -1,13 +1,8 @@
 function draw(nodes, edges){
     var g = d3.select("svg"),
-    width = +g.attr("width"),
-    height = +g.attr("height");
-    var groups = []
-    for(let i = 0; i < nodes.length; i++)
-     for(let j = i + 1; j < nodes.length; j++)
-     if(nodes[i]['group'] == nodes[j]['group']){
-         groups.push({'source': i, 'target': j});
-     }
+    width = 500,
+    height = 500;
+    g.attr('width', width).attr('height', height);
     //新建一个力导向图
     var forceSimulation = d3.forceSimulation()
         .force("link",d3.forceLink()
