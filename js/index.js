@@ -49,7 +49,7 @@ function seriesInit(){
     let margin = {"top": 40, "left": 150};
     let width = 700, height = 200;
     let xScale = d3.scaleBand()
-        .domain(d3.range(1999, 2020))
+        .domain(d3.range(2004, 2020))
         .range([0, width - margin.left]);
     let yScale = d3.scaleLinear()
         .domain([0, 100])
@@ -82,7 +82,7 @@ function drawSeries(keyword, flag){
     let margin = {"top": 40, "left": 150};
     let width = 700, height = 200;
     let xScale = d3.scaleBand()
-        .domain(d3.range(1999, 2020))
+        .domain(d3.range(2004, 2020))
         .range([0, width - margin.left]);
     let yScale = d3.scaleLinear()
         .domain([0, d3.max(wordsList.map(d => d["maxVal"]*100))+5])
@@ -187,6 +187,7 @@ function drawSeries(keyword, flag){
         let d = [];
         for(let i = 0; i < data.length; i++){
             let cnt = 0, val = 0;
+            if(data[i].year < 2004) continue;
             for(let j = 0; j < data[i].nodes.length; j++)
             if(data[i].nodes[j].name == keyword){
                 cnt = data[i].nodes[j].cnt;
