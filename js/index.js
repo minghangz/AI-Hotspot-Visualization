@@ -1,4 +1,30 @@
-var data, articles;
+var data, articles, selectedYear;
+var selectCnt = 0, maxWords = 10, wordsList=[], ids=["", "", "", "", "", "", "", "", "", ""];
+
+function showInfo(keyword, year, cnt, val){
+    keyword = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+    d3.select(".details")
+        .style("display", "block")
+        .style("left", (d3.event.pageX+10) + "px")
+        .style("top", (d3.event.pageY+10) + "px")
+        .html("<b>"+year+"年："+keyword+"：</b><br/>"+
+            "出现次数："+cnt+"次<br/>"+
+            "全年占比："+(val*100).toFixed(2)+"%");
+}
+
+function showInfo2(year, keyword1, keyword2, cnt1, cnt2, cnt3){
+    keyword1 = keyword1.charAt(0).toUpperCase() + keyword1.slice(1);
+    keyword2 = keyword2.charAt(0).toUpperCase() + keyword2.slice(1);
+    cnt3 = d3.min([cnt1, cnt2, cnt3]);
+    d3.select(".details")
+        .style("display", "block")
+        .style("left", (d3.event.pageX+10) + "px")
+        .style("top", (d3.event.pageY+10) + "px")
+        .html("<b>"+year+"年</b><br/>"+
+            keyword1+"："+cnt1+"次<br/>"+
+            keyword2+"："+cnt2+"次<br/>"+
+            "共现："+cnt3+"次");
+}
 
 /*
 * 可以在里面做一些初始化工作，例如建立坐标系，为svg添加g分组之类的。
@@ -20,7 +46,29 @@ function drawInfo(year, keyword, flag){
 
 /* 与infoInit类似 */
 function seriesInit(){
-    // ToDo
+    let margin = {"top": 40, "left": 150};
+    let width = 700, height = 200;
+    let xScale = d3.scaleBand()
+        .domain(d3.range(1999, 2020))
+        .range([0, width - margin.left]);
+    let yScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([height - margin.top, 0]);
+    let xAxis = d3.axisBottom(xScale);
+    let yAxis = d3.axisLeft(yScale);
+    let svg = d3.select(".Series")
+        .attr("width", width + margin.left)
+        .attr("height", height + margin.top);
+    svg.append('g')
+        .attr('class', 'xAxis')
+        .attr('transform', 'translate('+margin.left+','+height+')')
+        .call(xAxis);
+    svg.append('g')
+        .attr('class', 'yAxis')
+        .attr('transform', 'translate('+margin.left+','+margin.top+')')
+        .call(yAxis);
+    svg.append('g').attr("class", "line");
+    svg.append('g').attr("class", "hint")
 }
 /* 
 * 在class为Series的svg中显示绘制其中的关键词出现次数占比随时间变化的图
@@ -28,8 +76,127 @@ function seriesInit(){
 * 传入一个关键词list。 最好实现鼠标悬浮显示详细信息。
 * 全局变量data中可以找到相关信息。data[i].nodes.val是占比。
 */
-function drawSeries(wordsList){
-    // ToDo
+function drawSeries(keyword, flag){
+    d3.select(".details").style("display", "none");
+    preProcess(keyword, flag);
+    let margin = {"top": 40, "left": 150};
+    let width = 700, height = 200;
+    let xScale = d3.scaleBand()
+        .domain(d3.range(1999, 2020))
+        .range([0, width - margin.left]);
+    let yScale = d3.scaleLinear()
+        .domain([0, d3.max(wordsList.map(d => d["maxVal"]*100))+5])
+        .range([height - margin.top, 0]);
+    let color = d3.scaleOrdinal()
+        .domain(d3.range(10))
+        .range(d3.schemeCategory10);
+    
+    d3.select(".Series .yAxis").call(d3.axisLeft(yScale));
+    let line = d3.line()
+        .x(d => xScale(d["year"]) + margin.left+xScale.step()/2)
+        .y(d => yScale(d["val"]*100) + margin.top);
+    d3.select(".Series .line").selectAll("g")
+        .data(wordsList).join("g")
+        .attr("class", d => "Data "+d.name)
+        .each(addLine);
+    d3.select(".Series .hint").selectAll("text")
+        .data(wordsList).join("text")
+        .attr("class", d => "Data "+d.name)
+        .attr("x", 20)
+        .attr("y", (d, i) => i*20+13)
+        .text(d => d.name);
+    d3.select(".Series .hint").selectAll("rect")
+        .data(wordsList).join("rect")
+        .attr("class", d => "Data "+d.name)
+        .attr("width", 15)
+        .attr("height", 15)
+        .attr("y", (d, i)=>i*20)
+        .attr("fill", d => color(d.id));
+
+    function addLine(data){
+        d3.select(this).selectAll("path")
+            .data([0]).join("path")
+            .attr("d", d => line(data.data))
+            .attr("fill", "none")
+            .attr("stroke-width", 3)
+            .attr("stroke", color(data.id))
+            .on("mouseover", function(){
+                d3.selectAll(".Data").classed("deactive", true);
+                d3.selectAll("."+data.name).classed("deactive", false);
+                d3.selectAll(".Series ."+data.name).raise();
+            })
+            .on("mouseout", function(){
+                d3.selectAll(".deactive").classed("deactive", false);
+            })
+            .on("click", function(){
+                d3.selectAll(".Pack ."+data.name).attr("select", "false");
+                selectCnt--;
+                drawSeries(data.name, false);
+                d3.selectAll(".deactive").classed("deactive", false);
+                d3.select(".details").style("display", "none");
+            });
+        d3.select(this).selectAll("circle")
+            .data(data.data).join("circle")
+            .attr("r", 4)
+            .attr("cx", d => xScale(d["year"]) + margin.left+xScale.step()/2)
+            .attr("cy", d => yScale(d["val"]*100) + margin.top)
+            .attr("fill", color(data.id))
+            .on("mouseover", function(d){
+                d3.selectAll(".Data").classed("deactive", true);
+                d3.selectAll("."+data.name).classed("deactive", false);
+                d3.selectAll(".Series ."+data.name).raise();
+                showInfo(d.name, d.year, d.cnt, d.val);
+            })
+            .on("mousemove", d => showInfo(d.name, d.year, d.cnt, d.val))
+            .on("mouseout", function(d){
+                d3.selectAll(".deactive").classed("deactive", false);
+                d3.select(".details").style("display", "none");
+            })
+            .on("click", function(){
+                d3.selectAll(".Pack ."+data.name).attr("select", "false");
+                selectCnt--;
+                drawSeries(data.name, false);
+                d3.selectAll(".deactive").classed("deactive", false);
+                d3.select(".details").style("display", "none");
+            });
+    }
+
+    function preProcess(keyword, flag){
+        if(flag == false){
+            let j = 0;
+            for(let i = 0; i < wordsList.length; i++)
+            if(wordsList[i].name == keyword){
+                j = i;
+                break;
+            }
+            for(let i = 0; i < maxWords; i++)
+            if(ids[i] == keyword){
+                ids[i] = "";
+                break;
+            }    
+            wordsList.splice(j, 1);
+            return;
+        }
+        let id = -1, maxVal = 0;
+        for(let i = 0; i < maxWords; i++)
+        if(ids[i] == ""){
+            ids[i] = keyword;
+            id = i;
+            break;
+        }
+        let d = [];
+        for(let i = 0; i < data.length; i++){
+            let cnt = 0, val = 0;
+            for(let j = 0; j < data[i].nodes.length; j++)
+            if(data[i].nodes[j].name == keyword){
+                cnt = data[i].nodes[j].cnt;
+                val = data[i].nodes[j].val;
+            }
+            d.push({"year": data[i].year, "cnt": cnt, "val": val, "name": keyword});
+            maxVal = d3.max([val, maxVal]);
+        }
+        wordsList.push({"name":keyword, "data":d, "id":id, "maxVal": maxVal});
+    }
 }
 
 function packInit(){
@@ -49,7 +216,7 @@ function drawPack(d){
     let view;
     let color = d3.scaleLinear()
         .domain([0, 5])
-        .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+        .range(["hsl(200,60%,50%)", "hsl(200,60%,50%)"])
         .interpolate(d3.interpolateHcl)
 
     const svg = d3.select("svg")
@@ -65,10 +232,11 @@ function drawPack(d){
         .data(root.descendants().slice(1).sort((a, b)=>a.data.key-b.data.key))
         .join("circle")
         .attr("fill", d => d.depth != 2 ? color(d.depth) : "white")
-        .attr("class", d => d.data.name)
+        .attr("class", d => "Data "+d.data.name)
         .attr("pointer-events", null)
         .on("mouseover", function(d) {select(d); d3.select(this).attr("stroke", "#000"); })
         .on("mouseout", function() {unselect(); d3.select(this).attr("stroke", null); })
+        .on("mousemove", function(d) {select(d); d3.select(this).attr("stroke", "#000"); })
         .on("click", d => click(d));
 
     const label = svg.select("g[class=label]")
@@ -78,25 +246,26 @@ function drawPack(d){
         .selectAll("text")
         .data(root.descendants().slice(1).sort((a, b)=>a.data.key-b.data.key))
         .join("text")
-        .style("fill-opacity", d => d.parent === root ? 0 : 1)
+        .attr("class", d => "Data "+d.data.name)
+        .attr("fill-opacity", d => d.parent === root ? 0 : 1)
         .text(d => d.data.name);
 
+    d3.selectAll(".Data").attr("pointer-events", "none");
+    setTimeout(() => {d3.selectAll(".Data").attr("pointer-events", null)}, 2000);
     view = [root.x, root.y, root.r * 2];
-    label.transition().duration(1000)
+    label.transition().duration(500)
         .attr("font-size", d => d.r / 3 >= 3? d.r / 3: 0);
-    label.transition().duration(2000).delay(1000)
+    label.transition().duration(1500).delay(500)
         .attr("transform", d => `translate(${(d.x - root.x)},${(d.y - root.y)})`);
-    node.transition().duration(1000)
+    node.transition().duration(500)
         .attr("r", d => d.value? d.r: 0);
-    node.transition().duration(2000).delay(1000)
+    node.transition().duration(1500).delay(500)
         .attr("transform", d => `translate(${(d.x - root.x)},${(d.y - root.y)})`);
     //zoomTo([root.x, root.y, root.r * 2]);
 
     function zoomTo(v) {
         const k = width / v[2];
-
         view = v;
-        
         label.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
         label.attr("font-size", d => d.r * k / 3 >= 3? d.r * k / 3: 0);
         node.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
@@ -105,8 +274,10 @@ function drawPack(d){
 
     function zoom(d) {
         focus = d;
+        d3.selectAll(".Data").attr("pointer-events", "none");
+        setTimeout(() => {d3.selectAll(".Data").attr("pointer-events", null)}, 750);
         const transition = svg.transition()
-            .duration(d3.event.altKey ? 7500 : 750)
+            .duration(750)
             .tween("zoom", d => {
                 const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
                 return t => zoomTo(i(t));
@@ -116,12 +287,21 @@ function drawPack(d){
         if(d === focus) return;
         if(d.depth != 2){
             zoom(d);
-        } else{
-            console.log($(event.target).attr("select"));
-            if($(event.target).attr("select") === "true")
+        } else {
+            if($(event.target).attr("select") === "true"){
                 $(event.target).attr("select", "false");
-            else
+                selectCnt--;
+                drawSeries(d.data.name, false);
+            }else{
                 $(event.target).attr("select", "true");
+                if(selectCnt >= maxWords){
+                    window.alert("最多选择"+maxWords+"个关键词！");
+                    return;
+                } else {
+                    selectCnt++;
+                    drawSeries(d.data.name, true);
+                }
+            }
         }
         d3.event.stopPropagation();
     }
@@ -135,16 +315,23 @@ function drawPack(d){
     }
     function select(d){
         if(d.depth == 2){
-            d3.selectAll("."+d.data.name).classed("active", true);
+            d3.selectAll(".Data").classed("deactive", true);
+            d3.selectAll("."+d.data.name).classed("deactive", false);
+            d3.selectAll(".Series ."+d.data.name).raise();
+            showInfo(d.data.name, d.data.year, d.data.value, d.data.ratio);
             return;
         }
+        d3.selectAll(".Data").classed("deactive", true);
+        d3.select(event.target).classed("deactive", false);
         for(let i = 0; i < d.children.length; i++){
             let name = d.children[i].data.name; 
-            d3.selectAll("."+name).classed("active", true);
+            d3.selectAll("."+name).classed("deactive", false);
+            d3.selectAll(".Series ."+name).raise();
         }
     }
     function unselect(){
-        d3.selectAll(".active").classed("active", false);
+        d3.selectAll(".deactive").classed("deactive", false);
+        d3.select(".details").style("display", "none");
     }
     function preProcess(d){
         let keywordsMap = {}, n = d['keywords'].length;
@@ -167,7 +354,8 @@ function drawPack(d){
             let p = groupMax[d['nodes'][i].group];
             p = keywordsMap[d['nodes'][p]['name']];
             let name = d['nodes'][i]['name'], val = d['nodes'][i]['cnt'], key = keywordsMap[name] + n;
-            data['children'][p]['children'].push({'name': name, 'value': val, 'key': key});
+            data['children'][p]['children'].push({'year': d['year'], 'name': name, 
+                'value': val, 'key': key, "ratio": d['nodes'][i]['val']});
             visited[key - n] = 1;
         }
         for(let i = 0; i < n; i++)
@@ -194,7 +382,7 @@ function matrixInit(){
         .attr("height", height)
         .style('fill', '#eee');
 }
-function drawMatrix(d){
+function drawMatrix(rawData){
     let margin = {top: 100, right: 0, bottom: 10, left: 100},
         width = 400,
         height = 400;
@@ -202,8 +390,8 @@ function drawMatrix(d){
         z = d3.scaleLinear();
     let svg = d3.select(".Matrix g");
     let matrix = [],
-        nodes = d['nodes'],
-        edges = d['edges'],
+        nodes = rawData['nodes'],
+        edges = rawData['edges'],
         n = nodes.length;
 
     nodes.forEach(function(node, i) {
@@ -234,7 +422,7 @@ function drawMatrix(d){
         .data(matrix)
         .join(enter=>enter.append("g").attr("class", "row"))
         .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
-        .attr("class", (d, i) => "row "+nodes[i].name)
+        .attr("class", (d, i) => "row Data "+nodes[i].name)
         .each(Row);
 
     row.selectAll("line")
@@ -256,7 +444,7 @@ function drawMatrix(d){
     let column = svg.selectAll(".column")
         .data(matrix)
         .join(enter=>enter.append("g").attr("class", "column"))
-        .attr("class", (d, i) => "column "+nodes[i].name)
+        .attr("class", (d, i) => "column Data "+nodes[i].name)
         .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 
     column.selectAll("line")
@@ -282,22 +470,30 @@ function drawMatrix(d){
             .attr("x", function(d) { return x(d.x); })
             .attr("width", x.step())
             .attr("height", x.step())
-            .attr("class", d => "cell "+nodes[d.x].name+" "+nodes[d.y].name)
+            .attr("class", d => "cell Data "+nodes[d.x].name+" "+nodes[d.y].name)
             .on("mouseover", mouseover)
             .on("mouseout", mouseout)
+            .on("mousemove", mouseover)
+            .attr("fill", "#336699")
             .style("fill-opacity", function(d) { return z(d.z); });
     }
 
     function mouseover(d) {
-        d3.selectAll("."+nodes[d.x].name).classed("active", true);
-        d3.selectAll("."+nodes[d.y].name).classed("active", true);
+        d3.selectAll(".Data").classed("deactive", true);
+        d3.selectAll("."+nodes[d.x].name).classed("deactive", false);
+        d3.selectAll("."+nodes[d.y].name).classed("deactive", false);
+        d3.selectAll(".Series ."+nodes[d.x].name).raise();
+        d3.selectAll(".Series ."+nodes[d.y].name).raise();
+        d3.selectAll(".Pack circle."+nodes[d.y].name).attr("stroke", "#000");
+        showInfo2(rawData["year"], nodes[d.x].name, nodes[d.y].name, nodes[d.x].cnt, nodes[d.y].cnt, d.z);
         //d3.selectAll(".row").classed("active", function(d, i) { return i == p.y; });
         //d3.selectAll(".column").classed("active", function(d, i) { return i == p.x; });
     }
 
     function mouseout(d) {
-        d3.selectAll("."+nodes[d.x].name).classed("active", false);
-        d3.selectAll("."+nodes[d.y].name).classed("active", false);
+        d3.selectAll(".deactive").classed("deactive", false);
+        d3.selectAll(".Pack circle."+nodes[d.y].name).attr("stroke", null);
+        d3.select(".details").style("display", "none");
         //d3.selectAll(".row").classed("active", false);
         //d3.selectAll(".column").classed("active", false);
     }
@@ -326,11 +522,9 @@ function drawMatrix(d){
 
 
 function main(){
-    year = $("#spinner input").val()-1999;
-    console.log(year);
-    drawPack(data[year]);
-    drawMatrix(data[year]);
-    drawSeries(["learning", "model", "system", "robot", "image"]);
+    selectedYear = $("#spinner input").val()-1999;
+    drawPack(data[selectedYear]);
+    drawMatrix(data[selectedYear]);
 }
 
 d3.json('data/clustering.json').then(function(d){

@@ -1,18 +1,54 @@
+.Pack{
+    transform: scale(0.9);
+}
 .Matrix{
-    transform: translate(500px, -500px);
+    transform: translate(500px, -530px) scale(0.9);
+}
+.Series{
+    transform: translate(30px, -550px);
+}
+.cell{
+    cursor: pointer;
+}
+.Series .line .Data{
+    cursor: pointer;
 }
 body{
     background-color: #f6f6f6;
+    z-index: 1;
 }
-.active{
-    fill: #0099CC;
+.details{
+    position: absolute;
+    border: solid;
+    border-width: 2px;
+    border-color: #888888;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    word-break:break-all;
+    padding: 5px 5px;
+    display: none;
+    opacity: 0.8;
+    z-index: 1;
+    width: auto;
+    font-size: 12px;
 }
-.Pack .active{
+.Series .deactive{
+    transition: 0.5s;
+    opacity: 0.2;
+}
+
+.Matrix rect.deactive{
+    transition: 0.5s;
+    fill: black;
+}
+.Matrix .deactive text{
+    transition: 0.5s;
+    opacity: 0.2;
+}
+.Pack .deactive{
+    transition: 0.5s;
     opacity: 0.5;
 }
 [select=true]{
-    fill: #0099CC;
-}
-[select=true]{
-    opacity: 0.5;
+    fill: #FFFFCC;
 }
