@@ -1,5 +1,5 @@
 var data, articles, selectedYear;
-var selectCnt = 0, maxWords = 10, wordsList=[], ids=["", "", "", "", "", "", "", "", "", ""],Arr=[];
+var selectCnt = 0, maxWords = 10, wordsList=[], ids=["", "", "", "", "", "", "", "", "", ""];
 
 function showInfo(keyword, year, cnt, val){
     keyword = keyword.charAt(0).toUpperCase() + keyword.slice(1);
@@ -7,7 +7,7 @@ function showInfo(keyword, year, cnt, val){
         .style("display", "block")
         .style("left", (d3.event.pageX+10) + "px")
         .style("top", (d3.event.pageY+10) + "px")
-        .html("<b>"+year+"年 "+keyword+"：</b><br/>"+
+        .html("<b>"+year+"年："+keyword+"：</b><br/>"+
             "出现次数："+cnt+"次<br/>"+
             "全年占比："+(val*100).toFixed(2)+"%");
 }
@@ -32,203 +32,28 @@ function showInfo2(year, keyword1, keyword2, cnt1, cnt2, cnt3){
 */
 function infoInit(){
     // ToDo
+	let margin = {"top": 40, "left": 150};
+    let width = 700, height = 200;
+    let svg = d3.select(".Info")
+        .attr("width", width + margin.left)
+        .attr("height", height + margin.top);
+	
 }
 
-//显示悬浮窗
-function showInform(event){
-      	document.getElementById("inform").style.display='block';
-         // document.getElementById("inform").css("display","block");
-}
-//隐藏悬浮窗
-function hiddenInform(event){
-      	 var informDiv = document.getElementById('inform');
-      	 var x=event.clientX;  
-         var y=event.clientY;  
-      	 var divx1 = informDiv.offsetLeft;  
-         var divy1 = informDiv.offsetTop;  
-         var divx2 = informDiv.offsetLeft + informDiv.offsetWidth;  
-         var divy2 = informDiv.offsetTop + informDiv.offsetHeight;
-         if( x < divx1 || x > divx2 || y < divy1 || y > divy2){  
-              document.getElementById('inform').style.display='none';  
-         }  
-        
-}
-//获取元素的纵坐标
-function getTop(e){
-
-
-}
-
-//获取元素的横坐标
-function getLeft(e){
-
-   
-
-}
 /*
 * 显示当年与keyword相关的所有文章。
 * 在class为Info的svg中显示相关文章的标题、作者等信息。
 * 当flag为true时显示，当flag为false时取消显示。
 * 可以在全局变量articles中找到相关信息
 */
-
-//在鼠标显示一个层
-function showTip(e,content,ifhave){ 	    
-
-	var div1 = document.getElementById(content); //将要弹出的层
-	var x,x1;
-	var y,y1;
-	if(window.event){
-	e = window.event;	
-	x=(e.clientX+document.body.scrollLeft+10); //鼠标目前在X轴上的位置
-	y=(e.clientY+document.body.scrollTop+6);
-	if((y+150)>document.body.clientHeight){y=y-150-6;}
-	}else{
-	x=(e.pageX+10);
-	y=(e.pageY+6);
-	if((y+150)>document.body.clientHeight){y=y-150-6;}
-	}
-	div1.style.left=x+"px"; //鼠标目前在X轴上的位置，加10是为了向右边移动10个px方便看到内容 
-	div1.style.top=y+"px"; 	
-	div1.style.display="block"; //div1设置为可见 
-	
-	div1.style.position="absolute";
+function drawInfo(year, keyword, flag){
+    // ToDo
 }
-
-//关闭显示 
-function closeTip(event,divid) { 
-//var div1 = document.getElementById('divdisplay'); 
-//div1.style.display="none"; 
-document.getElementById(divid).style.display="none";
-} 
-
-function getArr(year){
-    Arr=[];
-    for(var i in articles){
-        if(articles[i].year==year)
-        {
-            Arr.push({"title":articles[i].title, "keywords":articles[i].keywords, "authors":articles[i].authors, "abstract":articles[i].abstract});
-        }
-    }
-}
-
-function drawInfo(year){
-    getArr(year);
-    let Info = document.getElementById("Info");
-    let num = document.getElementById("num");
-    let cnt=0;
-    $(Info).empty();
-    for(var i in Arr){ 
-        let f=false;
-            if(selectCnt!=0){
-                for(var k=0; k<selectCnt;k++){
-                  for(var p=0; p<Arr[i].keywords.length;p++)
-                     {
-                         if(Arr[i].keywords[p]==wordsList[k].name)
-                            break;
-                     }
-                    if(p==Arr[i].keywords.length)
-                        break;
-                }
-                 if(k==selectCnt)
-                       f=true;
-                }
-            if(f==true||selectCnt==0){
-            cnt++;
-            let entry = document.createElement("div");
-            entry.className="entry";
-            entry.id=i.toString();
-            Info.appendChild(entry);
-
-            let index = document.createElement("div");
-            index.className="index";
-            index.innerText = cnt;
-            entry.appendChild(index);
-
-            let title = document.createElement("div");
-            title.className="title";
-            entry.appendChild(title);
-
-            let show = document.createElement("a");
-            show.href="#collapse"+cnt;
-            show.setAttribute("data-toggle","collapse");
-            show.setAttribute("data-parent","#Info-container");
-            show.innerText = Arr[i].title;
-            title.appendChild(show);
-
-            for(var j=0;j<Arr[i].authors.length&&j<4;j++){
-                let author = document.createElement("div");
-                author.className="author";
-                author.innerText = Arr[i].authors[j];
-                entry.appendChild(author);
-             }
-
-            let detailcontainer = document.createElement("div");
-            detailcontainer.id="collapse"+cnt;
-            detailcontainer.className="panel-collapse collapse in";
-            entry.appendChild(detailcontainer);
-
-            let abstr = document.createElement("div");
-            abstr.id="abstract"+cnt;
-            abstr.className="abstr";
-            abstr.innerHTML = "<b>Abstract: </b>"+Arr[i].abstract;
-            detailcontainer.appendChild(abstr);
-
-         for(var j=0;j<Arr[i].keywords.length;j++){
-                let keys = document.createElement("div");
-                keys.className="keys";
-                if(j==0)
-                {
-                    keys.innerHTML = "<b>keywords: </b>"+Arr[i].keywords[j];
-                }
-                else if(j>0){
-                    keys.innerHTML = ", "+Arr[i].keywords[j];
-                }
-                detailcontainer.appendChild(keys);
-             }
-        }
-    }
-        num.innerText = cnt.toString()+" Publications";
-        if(cnt==0) {
-            let tips = document.createElement("div");
-            tips.className="tips";
-            tips.innerText = "No results meet your requirements";
-            Info.appendChild(tips);
-        }
-    }
-     
-
-	/*
-	//通过createElementNS创建svg元素并设置属性
-		var svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); 	
-		svg.setAttribute("style","width:100%;height:100%;");
-		svg.setAttribute("viewBox","0 0 100 100");				
-		
-		//创建矩形元素并设置属性
-		var rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); 
-		rect.setAttribute("x","10");
-		rect.setAttribute("y","10");
-		rect.setAttribute("width","20");
-		rect.setAttribute("height","20");
-		rect.setAttribute("style","fill:#ff6666;stroke-width:1;stroke:rgb(255,0,0)");
-		
-		
-		//监听鼠标事件
-	var rect = bar.selectAll("rect")
-    .on("mouseover",function(d,i){
-        showTip();
-    })
-    .on("mouseout",function(d,i){
-		closeTip();
-		hiddenInform();
-    });
-*/
-
 
 /* 与infoInit类似 */
 function seriesInit(){
-    let margin = {"top": 20, "left": 30};
-    let width = 550, height = 300;
+    let margin = {"top": 40, "left": 150};
+    let width = 700, height = 200;
     let xScale = d3.scaleBand()
         .domain(d3.range(2004, 2020))
         .range([0, width - margin.left]);
@@ -237,7 +62,9 @@ function seriesInit(){
         .range([height - margin.top, 0]);
     let xAxis = d3.axisBottom(xScale);
     let yAxis = d3.axisLeft(yScale);
-    let svg = d3.select("#Series");
+    let svg = d3.select(".Series")
+        .attr("width", width + margin.left)
+        .attr("height", height + margin.top);
     svg.append('g')
         .attr('class', 'xAxis')
         .attr('transform', 'translate('+margin.left+','+height+')')
@@ -247,7 +74,7 @@ function seriesInit(){
         .attr('transform', 'translate('+margin.left+','+margin.top+')')
         .call(yAxis);
     svg.append('g').attr("class", "line");
-    svg.append('g').attr("class", "hint");
+    svg.append('g').attr("class", "hint")
 }
 /* 
 * 在class为Series的svg中显示绘制其中的关键词出现次数占比随时间变化的图
@@ -258,8 +85,8 @@ function seriesInit(){
 function drawSeries(keyword, flag){
     d3.select(".details").style("display", "none");
     preProcess(keyword, flag);
-    let margin = {"top": 20, "left": 30};
-    let width = 550, height = 300;
+    let margin = {"top": 40, "left": 150};
+    let width = 700, height = 200;
     let xScale = d3.scaleBand()
         .domain(d3.range(2004, 2020))
         .range([0, width - margin.left]);
@@ -270,26 +97,25 @@ function drawSeries(keyword, flag){
         .domain(d3.range(10))
         .range(d3.schemeCategory10);
     
-    d3.select("#Series .yAxis").call(d3.axisLeft(yScale));
+    d3.select(".Series .yAxis").call(d3.axisLeft(yScale));
     let line = d3.line()
         .x(d => xScale(d["year"]) + margin.left+xScale.step()/2)
         .y(d => yScale(d["val"]*100) + margin.top);
-    d3.select("#Series .line").selectAll("g")
+    d3.select(".Series .line").selectAll("g")
         .data(wordsList).join("g")
         .attr("class", d => "Data "+d.name)
         .each(addLine);
-    d3.select("#Series .hint").selectAll("text")
+    d3.select(".Series .hint").selectAll("text")
         .data(wordsList).join("text")
         .attr("class", d => "Data "+d.name)
-        .attr("x", 470)
+        .attr("x", 20)
         .attr("y", (d, i) => i*20+13)
         .text(d => d.name);
-    d3.select("#Series .hint").selectAll("rect")
+    d3.select(".Series .hint").selectAll("rect")
         .data(wordsList).join("rect")
         .attr("class", d => "Data "+d.name)
         .attr("width", 15)
         .attr("height", 15)
-        .attr("x",450)
         .attr("y", (d, i)=>i*20)
         .attr("fill", d => color(d.id));
 
@@ -303,13 +129,13 @@ function drawSeries(keyword, flag){
             .on("mouseover", function(){
                 d3.selectAll(".Data").classed("deactive", true);
                 d3.selectAll("."+data.name).classed("deactive", false);
-                d3.selectAll("#Series ."+data.name).raise();
+                d3.selectAll(".Series ."+data.name).raise();
             })
             .on("mouseout", function(){
                 d3.selectAll(".deactive").classed("deactive", false);
             })
             .on("click", function(){
-                d3.selectAll("#Pack ."+data.name).attr("select", "false");
+                d3.selectAll(".Pack ."+data.name).attr("select", "false");
                 selectCnt--;
                 drawSeries(data.name, false);
                 d3.selectAll(".deactive").classed("deactive", false);
@@ -324,7 +150,7 @@ function drawSeries(keyword, flag){
             .on("mouseover", function(d){
                 d3.selectAll(".Data").classed("deactive", true);
                 d3.selectAll("."+data.name).classed("deactive", false);
-                d3.selectAll("#Series ."+data.name).raise();
+                d3.selectAll(".Series ."+data.name).raise();
                 showInfo(d.name, d.year, d.cnt, d.val);
             })
             .on("mousemove", d => showInfo(d.name, d.year, d.cnt, d.val))
@@ -333,7 +159,7 @@ function drawSeries(keyword, flag){
                 d3.select(".details").style("display", "none");
             })
             .on("click", function(){
-                d3.selectAll("#Pack ."+data.name).attr("select", "false");
+                d3.selectAll(".Pack ."+data.name).attr("select", "false");
                 selectCnt--;
                 drawSeries(data.name, false);
                 d3.selectAll(".deactive").classed("deactive", false);
@@ -381,13 +207,16 @@ function drawSeries(keyword, flag){
 }
 
 function packInit(){
-    let svg = d3.select("#Pack");
+    let width = 500, height = 500;
+    let svg = d3.select(".Pack")
+        .attr("width", width)
+        .attr("height", height);
     svg.append('g').attr('class', 'node');
     svg.append('g').attr('class', 'label');
 }
 
 function drawPack(d){
-    let width = 530, height = 530;
+    let width = 500, height = 500;
     let data = preProcess(d);
     const root = pack(data);
     let focus = root;
@@ -399,13 +228,17 @@ function drawPack(d){
 
     const svg = d3.select("svg")
         .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
+        .style("display", "block")
+        .style("margin", "0 -14px")
+        .style("background", '#f6f6f6')
+        .style("cursor", "pointer")
         .on("click", () => zoom(root));
 
     const node = svg.select("g[class=node]")
         .selectAll("circle")
         .data(root.descendants().slice(1).sort((a, b)=>a.data.key-b.data.key))
         .join("circle")
-        .attr("fill", d => d.depth != 2 ? color(d.depth) : "#eeeeee")
+        .attr("fill", d => d.depth != 2 ? color(d.depth) : "white")
         .attr("class", d => "Data "+d.data.name)
         .attr("pointer-events", null)
         .on("mouseover", function(d) {select(d); d3.select(this).attr("stroke", "#000"); })
@@ -466,7 +299,6 @@ function drawPack(d){
                 $(event.target).attr("select", "false");
                 selectCnt--;
                 drawSeries(d.data.name, false);
-                drawInfo($("#spinner input").val());
             }else{
                 $(event.target).attr("select", "true");
                 if(selectCnt >= maxWords){
@@ -475,7 +307,6 @@ function drawPack(d){
                 } else {
                     selectCnt++;
                     drawSeries(d.data.name, true);
-                    drawInfo($("#spinner input").val());
                 }
             }
         }
@@ -493,7 +324,7 @@ function drawPack(d){
         if(d.depth == 2){
             d3.selectAll(".Data").classed("deactive", true);
             d3.selectAll("."+d.data.name).classed("deactive", false);
-            d3.selectAll("#Series ."+d.data.name).raise();
+            d3.selectAll(".Series ."+d.data.name).raise();
             showInfo(d.data.name, d.data.year, d.data.value, d.data.ratio);
             return;
         }
@@ -502,7 +333,7 @@ function drawPack(d){
         for(let i = 0; i < d.children.length; i++){
             let name = d.children[i].data.name; 
             d3.selectAll("."+name).classed("deactive", false);
-            d3.selectAll("#Series ."+name).raise();
+            d3.selectAll(".Series ."+name).raise();
         }
     }
     function unselect(){
@@ -544,10 +375,10 @@ function drawPack(d){
 }
 
 function matrixInit(){
-    let margin = {top: 50, right: 0, bottom: 10, left: 50},
-        width = 300,
-        height = 300;
-    let svg = d3.select("#Matrix")
+    let margin = {top: 100, right: 0, bottom: 10, left: 100},
+        width = 400,
+        height = 400;
+    let svg = d3.select(".Matrix")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -559,12 +390,12 @@ function matrixInit(){
         .style('fill', '#eee');
 }
 function drawMatrix(rawData){
-    let margin = {top: 50, right: 0, bottom: 10, left: 50},
-        width = 300,
-        height = 300;
+    let margin = {top: 100, right: 0, bottom: 10, left: 100},
+        width = 400,
+        height = 400;
     let x = d3.scaleBand().range([0, width]),
         z = d3.scaleLinear();
-    let svg = d3.select("#Matrix g");
+    let svg = d3.select(".Matrix g");
     let matrix = [],
         nodes = rawData['nodes'],
         edges = rawData['edges'],
@@ -612,7 +443,7 @@ function drawMatrix(rawData){
         .join(enter=>enter.append("text"))
         .attr("x", -6)
         .attr("y", x.step() / 2)
-        .attr('font-size', 8)
+        .attr('font-size', 10)
         .attr("dy", ".32em")
         .attr("text-anchor", "end")
         .text(d=>d);
@@ -658,9 +489,9 @@ function drawMatrix(rawData){
         d3.selectAll(".Data").classed("deactive", true);
         d3.selectAll("."+nodes[d.x].name).classed("deactive", false);
         d3.selectAll("."+nodes[d.y].name).classed("deactive", false);
-        d3.selectAll("#Series ."+nodes[d.x].name).raise();
-        d3.selectAll("#Series ."+nodes[d.y].name).raise();
-        d3.selectAll("#Pack circle."+nodes[d.y].name).attr("stroke", "#000");
+        d3.selectAll(".Series ."+nodes[d.x].name).raise();
+        d3.selectAll(".Series ."+nodes[d.y].name).raise();
+        d3.selectAll(".Pack circle."+nodes[d.y].name).attr("stroke", "#000");
         showInfo2(rawData["year"], nodes[d.x].name, nodes[d.y].name, nodes[d.x].cnt, nodes[d.y].cnt, d.z);
         //d3.selectAll(".row").classed("active", function(d, i) { return i == p.y; });
         //d3.selectAll(".column").classed("active", function(d, i) { return i == p.x; });
@@ -668,7 +499,7 @@ function drawMatrix(rawData){
 
     function mouseout(d) {
         d3.selectAll(".deactive").classed("deactive", false);
-        d3.selectAll("#Pack circle."+nodes[d.y].name).attr("stroke", null);
+        d3.selectAll(".Pack circle."+nodes[d.y].name).attr("stroke", null);
         d3.select(".details").style("display", "none");
         //d3.selectAll(".row").classed("active", false);
         //d3.selectAll(".column").classed("active", false);
@@ -701,12 +532,7 @@ function main(){
     selectedYear = $("#spinner input").val()-1999;
     drawPack(data[selectedYear]);
     drawMatrix(data[selectedYear]);
-    drawInfo($("#spinner input").val());
 }
-
-$("#spinner").spinner('changing', function(e, newVal, oldVal) {
-    main();
-});
 
 d3.json('data/clustering.json').then(function(d){
     data = d;
@@ -718,5 +544,6 @@ d3.json('data/clustering.json').then(function(d){
 
 d3.json('data/dataSetWithKeyWords.json').then(function(d){
     articles = d;
-    drawInfo($("#spinner input").val());
+    infoInit();
+    drawInfo(2019, "learning", true);
 })

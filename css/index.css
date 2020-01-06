@@ -1,22 +1,163 @@
-.Pack{
-    transform: scale(0.9);
-}
-.Matrix{
-    transform: translate(500px, -530px) scale(0.9);
-}
-.Series{
-    transform: translate(30px, -550px);
-}
 .cell{
     cursor: pointer;
 }
-.Series .line .Data{
+#Series .line .Data{
     cursor: pointer;
 }
 body{
     background-color: #f6f6f6;
     z-index: 1;
+    min-width: 1531px;
 }
+
+#header {
+    position: absolute;
+    margin: 0px;
+    top: 0px;
+    bottom: auto;
+    left: 0px;
+    right: 0px;
+    min-width: 1531px;
+    z-index: 3;
+    padding: 6px;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(187, 187, 187);
+    overflow: visible;
+    height: 54px;
+    display: block;
+    visibility: visible;
+    padding-bottom: 0;
+}
+
+#title {
+    border-bottom: 1px solid black;
+    overflow: auto;
+    margin: -2px 2px 2px 0px;
+    height: 41px;
+}
+
+#title h2 {
+    float: left;
+    margin: 0px 0px 0px 21px;
+}
+#member {
+    float: left;
+    margin-top: 9px;
+    margin-left: 30px;
+}
+
+#spinner{
+    position: relative;
+    float: left;
+    margin: 2px 18px 2px 57px;
+}
+#order{
+    margin: 4px 18px 2px 18px;
+}
+
+#left{
+    position: absolute;
+    margin: 0px;
+    left: 0px;
+    right: auto;
+    top: 57px;
+    bottom: 48px;
+    height: 660px;
+    z-index: 0;
+    /* padding: 10px; */
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(187, 187, 187);
+    overflow: auto;
+    width: 535px;
+    display: block;
+    visibility: visible;
+}
+
+
+#right{
+    position: absolute;
+    margin: 0px;
+    left: 538px;
+    right: 0px;
+    top: 57px;
+    bottom: 48px;
+    height: 660px;
+    width: 998px;
+    z-index: 0;
+    padding: 0px;
+    overflow: hidden;
+    display: block;
+    visibility: visible;
+}
+
+#Pack-container{
+   display: block;
+   position: relative;
+}
+#Series-container{
+    position: relative;
+    /* margin: 0px; */
+    margin-left: 3px;
+    border-left: 1px;
+    left: 0px;
+    float: left;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    height: 410px;
+    width: 590px;
+    display: block;
+    border: 1px solid rgb(187, 187, 187);
+    background: rgb(255, 255, 255);
+    position: relative;
+}
+#Info-container{
+    position: relative;
+    margin: 0px;
+    left: 0px;
+    right: 0px;
+    float: left;
+    top: 3px;
+    bottom: 0px;
+    height: 247px;
+    width: 993px;
+    display: block;
+    border: 1px solid rgb(187, 187, 187);
+    background: rgb(255, 255, 255);
+    position: relative;
+}
+#Matrix-container{
+    position: relative;
+    margin: 0px;
+    float: left;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    height: 410px;
+    width: 400px;
+    border: 1px solid rgb(187, 187, 187);
+    display: block;
+    background: rgb(255, 255, 255);
+    position: relative;
+}
+
+.caption {
+    font-size: 12pt;
+    border-bottom: 1px solid black;
+    clear: both;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    margin: 8px 8px 10px 8px;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .details{
     position: absolute;
     border: solid;
@@ -29,26 +170,149 @@ body{
     display: none;
     opacity: 0.8;
     z-index: 1;
-    width: auto;
+    width: 150px;
     font-size: 12px;
 }
-.Series .deactive{
+#Series .deactive{
     transition: 0.5s;
     opacity: 0.2;
 }
 
-.Matrix rect.deactive{
+#Matrix{
+    margin-top: 0px;
+    margin-left: 20px;
+}
+#Series{
+    padding-top: 22px;
+    padding-left: 3px;
+}
+
+#Info{
+    margin-top: 10px;
+    margin-left: 10px;
+    position: relative;
+    display: block;
+    overflow:auto;
+    height: 200px;
+    visibility: visible;
+}
+#num{
+    position: absolute;
+    left: 835px;
+    top: 6px;
+    font-weight: bold;
+}
+
+#Matrix rect.deactive{
     transition: 0.5s;
     fill: black;
 }
-.Matrix .deactive text{
+.tips{
+    display: block;
+    margin-top: 66px;
+    margin-left: 122px;
+    font-size: 46px;
+    opacity: 20%;
+}
+#Matrix .deactive text{
     transition: 0.5s;
     opacity: 0.2;
 }
-.Pack .deactive{
+#Pack{
+    background-color: #ffffff;
+    margin: 22px 0px 0px 0px;
+    display:block;
+    cursor:pointer;
+}
+#Pack .deactive{
     transition: 0.5s;
     opacity: 0.5;
 }
 [select=true]{
     fill: #FFFFCC;
+}
+
+.entry {
+    margin-bottom: 2px;
+    width: 959px;
+    background: #f9f9f985;
+    counter-increment: problem;
+    border: 1px solid #adb5bd;
+    border-left: 4px solid #e9ecef;
+    padding: 1px 10px 0;
+    overflow: auto;
+}
+
+.entry .title {
+    font-weight: bold;
+    margin-bottom: -8px;
+    display: block;
+    width: 832px;
+    font-size: 17px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #223388;
+    text-decoration: none;
+    font-family: Calibri, Arial, sans-serif;
+    cursor: pointer;
+}
+.entry .author {
+    font-size: 11pt;
+    widows: 900px;
+    display: inline-block;
+    margin-right: 19px;
+    /* margin-bottom: 0px; */
+    margin-top: -8px;
+    /* margin-left: 10px; */
+    visibility: visible;
+    font-family: Calibri, Arial, sans-serif;
+}
+
+.entry .index {
+    position: relative;
+    float: left;
+    text-align: center;
+    top: auto;
+    bottom: auto;
+    /* margin-top: 10px; */
+    /* margin-bottom: auto; */
+    vertical-align: middle;
+    border-right: 6px;
+    border-right-color: #dee2e6;
+    font-size: 18px;
+    display:block;
+    width: 40px;
+    padding: 8px 0px 5px 0px;
+    height: 40px;
+    margin-right: 9px;
+    margin-left: -10px;
+    visibility: visible;
+    font-family: Calibri, Arial, sans-serif;
+}
+
+
+.abstr{
+    font-size: 12px;
+    line-height: 13px;
+    margin-left: 0px;
+    margin-bottom: -4px;
+    text-indent: 0px;
+    text-align: justify;
+}
+.keys{
+    font-size: 11pt;
+    widows: 900px;
+    display: inline-block;
+    margin-right: 2px;
+    margin-top: -8px;
+    visibility: visible;
+    font-family: Calibri, Arial, sans-serif;
+}
+
+.hint{
+    position: absolute;
+    margin-left: 57px;
+    padding-left: 10px;
+    margin-top: 43px;
 }
