@@ -41,13 +41,13 @@ function showInform(event){
 }
 //隐藏悬浮窗
 function hiddenInform(event){
-      	 var informDiv = document.getElementById('inform');
-      	 var x=event.clientX;  
-         var y=event.clientY;  
-      	 var divx1 = informDiv.offsetLeft;  
-         var divy1 = informDiv.offsetTop;  
-         var divx2 = informDiv.offsetLeft + informDiv.offsetWidth;  
-         var divy2 = informDiv.offsetTop + informDiv.offsetHeight;
+      	 let informDiv = document.getElementById('inform');
+      	 let x=event.clientX;  
+         let y=event.clientY;  
+      	 let divx1 = informDiv.offsetLeft;  
+         let divy1 = informDiv.offsetTop;  
+         let divx2 = informDiv.offsetLeft + informDiv.offsetWidth;  
+         let divy2 = informDiv.offsetTop + informDiv.offsetHeight;
          if( x < divx1 || x > divx2 || y < divy1 || y > divy2){  
               document.getElementById('inform').style.display='none';  
          }  
@@ -75,9 +75,9 @@ function getLeft(e){
 //在鼠标显示一个层
 function showTip(e,content,ifhave){ 	    
 
-	var div1 = document.getElementById(content); //将要弹出的层
-	var x,x1;
-	var y,y1;
+	let div1 = document.getElementById(content); //将要弹出的层
+	let x,x1;
+	let y,y1;
 	if(window.event){
 	e = window.event;	
 	x=(e.clientX+document.body.scrollLeft+10); //鼠标目前在X轴上的位置
@@ -97,14 +97,14 @@ function showTip(e,content,ifhave){
 
 //关闭显示 
 function closeTip(event,divid) { 
-//var div1 = document.getElementById('divdisplay'); 
+//let div1 = document.getElementById('divdisplay'); 
 //div1.style.display="none"; 
 document.getElementById(divid).style.display="none";
 } 
 
 function getArr(year){
     Arr=[];
-    for(var i in articles){
+    for(let i in articles){
         if(articles[i].year==year)
         {
             Arr.push({"title":articles[i].title, "keywords":articles[i].keywords, "authors":articles[i].authors, "abstract":articles[i].abstract});
@@ -118,7 +118,7 @@ function drawInfo(year){
     let num = document.getElementById("num");
     let cnt=0;
     $(Info).empty();
-    for(var i in Arr){ 
+    for(let i in Arr){ 
         let f=false;
             if(selectCnt!=0){
                 for(var k=0; k<selectCnt;k++){
@@ -156,7 +156,7 @@ function drawInfo(year){
             show.innerText = Arr[i].title;
             title.appendChild(show);
 
-            for(var j=0;j<Arr[i].authors.length&&j<4;j++){
+            for(let j=0;j<Arr[i].authors.length&&j<4;j++){
                 let author = document.createElement("div");
                 author.className="author";
                 author.innerText = Arr[i].authors[j];
@@ -174,7 +174,7 @@ function drawInfo(year){
             abstr.innerHTML = "<b>Abstract: </b>"+Arr[i].abstract;
             detailcontainer.appendChild(abstr);
 
-         for(var j=0;j<Arr[i].keywords.length;j++){
+         for(let j=0;j<Arr[i].keywords.length;j++){
                 let keys = document.createElement("div");
                 keys.className="keys";
                 if(j==0)
@@ -200,12 +200,12 @@ function drawInfo(year){
 
 	/*
 	//通过createElementNS创建svg元素并设置属性
-		var svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); 	
+		let svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); 	
 		svg.setAttribute("style","width:100%;height:100%;");
 		svg.setAttribute("viewBox","0 0 100 100");				
 		
 		//创建矩形元素并设置属性
-		var rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); 
+		let rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); 
 		rect.setAttribute("x","10");
 		rect.setAttribute("y","10");
 		rect.setAttribute("width","20");
@@ -214,7 +214,7 @@ function drawInfo(year){
 		
 		
 		//监听鼠标事件
-	var rect = bar.selectAll("rect")
+	let rect = bar.selectAll("rect")
     .on("mouseover",function(d,i){
         showTip();
     })
@@ -223,7 +223,456 @@ function drawInfo(year){
 		hiddenInform();
     });
 */
+/*
+function drawNode(data){
+    let g = d3.select("#Node"), nodes=data["nodes"], edges = data["edges"],
+    width = 400,
+    height = 400;
+    g.attr('width', width).attr('height', height);
 
+    let groups = [];
+    for(let i = 0; i < nodes.length; i++)
+     for(let j = 0; j < nodes.length; j++)
+     if(nodes[i].group == nodes[j].group){
+         groups.push({"source":i, "target":j});
+     }
+
+    //力学模型
+    let forceSimulation = d3.forceSimulation()
+        .force("link",d3.forceLink()
+            .distance(d=>d.source.group == d.target.group?120:180)) // 同一类之间的引力大
+        //    .distance(d=>200*(1-d['val'])))
+        .force("charge",d3.forceManyBody())
+        .force("group", d3.forceLink().distance(100))
+        .force("center",d3.forceCenter());
+    
+    let color = d3.scaleOrdinal().domain([d3.range(10)]).range(d3.schemeCategory10);
+
+    //节点数据
+    forceSimulation.nodes(nodes)
+        .on("tick",ticked);
+    //边数据
+    forceSimulation.force("link")
+        .links(edges);
+    forceSimulation.force("group")
+        .links(groups)
+    //中心位置
+    forceSimulation.force("center")
+        .x(width/2)
+        .y(height/2);
+
+
+    //绘制边
+    let links = g.selectAll("line")
+        .data(edges)
+        .join("line")
+        .attr("class", (d, i)=>"Data N"+i)
+        .attr("stroke", 'gray')
+        .attr("stroke-width", d=>(d['val'])*25)
+        .attr('opacity', 0.5);
+    let zoom = d3.zoom().scaleExtent([1, 10])
+		.on("zoom", function(){
+            d3.select(this).attr("transform", d3.event.transform);
+        });
+
+    //节点分组
+    let gs = g.selectAll(".circleText")
+        .data(nodes)
+        .join(enter=>enter.append("g"))
+        .attr("class", d=>"circleText Data "+d.name)
+        .attr("transform",function(d,i){
+            let cirX = d.x;
+            let cirY = d.y;
+            return "translate("+cirX+","+cirY+")";
+        })
+        .on("mouseover", d => select(d.name))
+        .on("mouseout", unselect)
+        .call(d3.drag()
+            .on("start",started)
+            .on("drag",dragged)
+            .on("end",ended)
+        );
+        
+    //绘制点
+    gs.selectAll("circle")
+        .data(d=>[d])
+        .join("circle")
+        .attr("r",d => Math.sqrt(d['val'])*80)
+        .attr("fill",d => color(d['group']))
+    //绘制文字
+    gs.selectAll("text")
+        .data(d=>[d])
+        .join("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("text-anchor", 'middle')
+        .attr("font-size", d => Math.sqrt(d['val'])*40)
+        .text(function(d){
+            return d.name;
+        })
+
+    function ticked(){
+        links.attr("x1",function(d){return d.source.x;})
+            .attr("y1",function(d){return d.source.y;})
+            .attr("x2",function(d){return d.target.x;})
+            .attr("y2",function(d){return d.target.y;});
+            
+        gs.attr("transform",function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    }
+    function started(d){
+        if(!d3.event.active){
+            forceSimulation.alphaTarget(0.8).restart();
+        }
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+    function dragged(d){
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+    function ended(d){
+        if(!d3.event.active){
+            forceSimulation.alphaTarget(0);
+        }
+        d.fx = null;
+        d.fy = null;
+    }
+    function select(name){
+        let threshold = 0.005;
+        d3.selectAll(".Data").classed("deactive", true);
+        d3.selectAll("#Node line").classed("deactive", true);
+        d3.selectAll("."+name).classed("deactive", false);
+        d3.selectAll("#Pack circle."+name).attr("stroke", "#000");
+        for(let i = 0; i < edges.length; i++){
+            if(edges[i]["key1"]==name && edges[i]['val'] >= threshold){
+                d3.selectAll("#Node ."+edges[i]["key2"]).classed("deactive", false);
+                d3.selectAll("#Node line.N"+i).classed("deactive", false);
+            }
+            if(edges[i]["key2"]==name && edges[i]['val'] >= threshold){
+                d3.selectAll("#Node ."+edges[i]["key1"]).classed("deactive", false);
+                d3.selectAll("#Node line.N"+i).classed("deactive", false);
+            }
+        }
+    }
+    function unselect(){
+        d3.selectAll(".Data").classed("deactive", false);
+        d3.selectAll("#Node line").classed("deactive", false);
+        d3.selectAll("#Pack circle").attr("stroke", "rgb(51, 153, 204)");
+    }
+}
+*/
+function drawNode(graph){
+    let len = graph.groupSize;
+    let areaMatrix = new Array(len);
+    let color = d3.scaleOrdinal().domain([d3.range(10)]).range(d3.schemeCategory10);
+
+    let width = 1000,
+        height = 1000,
+        innerRadius = Math.min(width, height) * .41,
+        outerRadius = innerRadius * 1.02;
+    
+    $("#Node").empty();
+    let svg = d3.select("#Node").append("g")
+        .attr("transform", "scale(0.58) translate(458,500)"); 
+
+    for (let i = 0; i < len; i++) {
+        areaMatrix[i] = new Array(len);
+        for (let j = 0; j < len; j++) {
+            areaMatrix[i][j] = 0;
+        }
+    }
+
+    collaMap = new Array(graph.nodes.length);
+    for (let i = 0; i < graph.nodes.length; i++) {
+        collaMap[i] = new Array(len);
+        for (let j = 0; j < graph.nodes.length; j++) {
+            collaMap[i][j] = 0;
+        }
+    }
+
+    for (let i = 0; i < graph.nodes.length; i++) {
+        let nodeAreaID = graph.nodes[i].group;
+        areaMatrix[nodeAreaID][nodeAreaID] = areaMatrix[nodeAreaID][nodeAreaID] + 1;
+    }
+
+    let areaChord = d3.chord()
+        //                .padding(0.2)
+        //                .sortGroups(d3.descending)
+            .sortSubgroups(d3.descending);
+
+    let are_chord = svg.append("g")
+            .selectAll("path")
+            .data(areaChord(areaMatrix).groups)
+            .join("path")
+            .attr("class", "areaChord")
+            .attr("fill", d => color(d.index))
+            .attr("stroke", d => color(d.index))
+            .attr("opacity", 0.4)
+            .attr("d", d3.arc().innerRadius(innerRadius).outerRadius(outerRadius * 1.05))
+            .on("mouseover",function(data){
+                d3.select(this).attr("opacity", 1);
+                //this.opacity = 1;
+                d3.selectAll("#Pack .Data").classed("deactive", true);
+                d3.selectAll("#Series .Data").classed("deactive", true);
+
+                nodes.attr("opacity",function(d){
+                    if(data.index == d.group){
+                        d3.selectAll("#Pack ."+d.name).classed("deactive", false);
+                        d3.selectAll("#Series ."+d.name).classed("deactive", false);
+                        return constNum.opacityHighlight;
+                    }
+                    else
+                        return constNum.opacity;
+                })
+                labels.attr("opacity",function(d){
+                    if(data.index == d.group)
+                        return constNum.opacityHighlight;
+                    else
+                        return constNum.opacity;
+                })
+                textLabel.attr("opacity",function(d){
+                    if(data.index == d.group)
+                        return 1;
+                    else
+                        return 0.1;
+                });
+                link.attr("opacity",function(d){
+                    if(d.source.group == data.index && d.target.group == data.index)
+                        return 1;
+                    else
+                        return 0.1;
+                })
+            })
+            .on("mouseout",function(data){
+                d3.selectAll(".deactive").classed("deactive", false);
+                are_chord.attr("opacity", 0.4);
+                nodes.attr("opacity",function(d) {
+                    return constNum.opacityHighlight;
+                });
+                labels.attr("opacity",1);
+                textLabel.text(function(data){
+                    return data.cnt;
+                })
+                    .attr("opacity",1);
+                link.attr("opacity",0.4);
+            });
+    let prof_centerNodes = [];
+    let prof_groups = areaChord(areaMatrix).groups;
+    for (let i = 0; i < prof_groups.length; i++) {
+        let d = prof_groups[i];
+        let x = innerRadius * 0.6 * Math.sin((d.endAngle + d.startAngle) / 2);
+        let y = -innerRadius * 0.6 * Math.cos((d.endAngle + d.startAngle) / 2);
+        let areaName = i;
+        prof_centerNodes.push({x: x, y: y, a: areaName});
+    }
+    prof_centerNodes.aiMap = {};
+    for (let i = 0; i < prof_centerNodes.length; i++) {
+        prof_centerNodes.aiMap[prof_centerNodes[i].a] = i;
+    }
+
+    prof_centerNodes.getProfCenterNodes = function (areaName) {
+        let index = this.aiMap[areaName];
+        return prof_centerNodes[index];
+    };
+
+
+    for(let i=0;i<graph.nodes.length;i++){
+        graph.nodes[i].neighbor =[];
+    }
+
+    let constNum = {
+        forceCharge: -1200,
+        forceChargeHighlight: -1200*2,
+
+        size: {
+            node: 24,
+            nodeHighlight: 24*3/2,
+
+        },
+
+        opacity: 0.2,
+        opacityHighlight: 1
+    };
+    let force = d3.forceSimulation(graph.nodes)
+        .force("charge", d3.forceManyBody())
+        .force("link", d3.forceLink(graph.edges));
+    force.force("charge")
+        .strength(function(d) {
+            return constNum.forceChargeHighlight;
+        })
+        .distanceMax(300);
+    force.force("link")
+        .distance(300)
+        .strength(0.3);
+
+    for(let i=0;i<graph.edges.length;i++){
+        let l = graph.edges[i];
+        l.source.neighbor.push(l.target.index);
+        l.target.neighbor.push(l.source.index);
+        collaMap[l.target.index][l.source.index]=l.cnt;
+        collaMap[l.source.index][l.target.index]=l.cnt;
+    }
+
+    let link = svg.selectAll(".link")
+        .data(graph.edges)
+        .enter().append("line")
+        .attr("class", "Data")
+        .attr("stroke","#999")
+        .attr("stroke-opacity",".6")
+        .attr("stroke-width", d => Math.sqrt(d.val) * 30);
+    let g = svg.selectAll(".node")
+        .data(graph.nodes)
+        .enter()
+        .append("g")
+        .on("mouseover", mouseover)
+        .on("mousemove", data => showInfo(data.name, graph.year, data.cnt, data.val))
+        .on("mouseout", mouseout)
+        .on("click", click);
+        /*.call(d3.drag()
+            .on("start",started)
+            .on("drag",dragged)
+            .on("end",ended)
+        )*/
+    let nodes = g.append("circle")
+        .attr("r", function(d) {
+            return Math.sqrt(d['val'])*150;
+        })
+        .attr("class", d => "Data "+d.name)
+        .attr("fill", d => color(d.group))
+        .attr("opacity",function(d) {
+            return constNum.opacityHighlight;
+        });
+    let labels = g.append("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("class", d => "Data "+d.name)
+        .attr("text-anchor", 'middle')
+        .attr("font-size", d => Math.sqrt(d['val'])*70)
+        .text(d => d.name);
+
+    link.append("title")
+            .text(function(d) {return d.val;});
+    let textLabel = svg.append("g")
+            .selectAll(".text")
+            .data(graph.nodes)
+            .enter()
+            .append("text")
+            .attr("class", d => "Data "+d.name)
+            .attr("text-anchor", 'middle')
+            .attr("font-size", d => Math.sqrt(d['val'])*70)
+            .attr("font-family","Serif")
+            .text(function(data){
+                return data.cnt;
+            })
+            .attr("x",function(data){return data.x;})
+            .attr("y",function(data){return data.y+Math.sqrt(data['val'])*70+10;})
+            .on("mouseover", mouseover)
+            .on("mousemove", data => showInfo(data.name, graph.year, data.cnt, data.val))
+            .on("mouseout", mouseout)
+            .on("click", click);
+            
+
+    force.on("tick", function() {
+
+        let k = force.alpha()*0.8 ;
+        // Push nodes toward their designated focus.
+        graph.nodes.forEach(function (o, i) {
+            let cx = prof_centerNodes.getProfCenterNodes(o.group).x;
+            let cy = prof_centerNodes.getProfCenterNodes(o.group).y;
+            o.x += (cx - o.x) * k;
+            o.y += (cy - o.y) * k;
+        });
+
+        link.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+        labels.attr("transform", function(d){
+            return "translate(" + d.x + "," + d.y + ")"; 
+        });
+
+        nodes.attr("cx", function(d) { return d.x;  })
+            .attr("cy", function(d) { return d.y; });
+
+        textLabel.attr("x",function(data){return data.x;})
+                .attr("y",function(data){return data.y+Math.sqrt(data['val'])*70+10;})
+
+    });
+    function mouseover(data,index){
+        showInfo(data.name, graph.year, data.cnt, data.val);
+        are_chord.attr("opacity",function(d){
+            if(d.index == data.group)
+                return 1;
+            else
+                return 0.4;
+        })
+        d3.selectAll("#Pack .Data").classed("deactive", true);
+        d3.selectAll("#Series .Data").classed("deactive", true);
+
+        svg.selectAll("."+data.name).attr("opacity", constNum.opacityHighlight);
+        svg.selectAll("circle."+data.name).attr("stroke", "black");
+        d3.selectAll("#Pack ."+data.name).classed("deactive", false);
+        d3.selectAll("#Series ."+data.name).classed("deactive", false);
+        //nodes["_groups"][0][index].opacity = constNum.opacityHighlight;
+        nodes["_groups"][0].forEach(function(n,i){
+            if(n.__data__.neighbor.indexOf(index) != -1){
+                //nodes["_groups"][0][i].opacity = constNum.opacityHighlight;
+                svg.selectAll("."+n.__data__.name).attr("opacity", constNum.opacityHighlight);
+                //d3.selectAll("#Pack ."+n.__data__.name).classed("deactive", false);
+                //d3.selectAll("#Series ."+n.__data__.name).classed("deactive", false);
+            }
+            else if(i!=index){
+                svg.selectAll("."+n.__data__.name).attr("opacity", 0.2);
+                //svg.select("."+data.name).attr("opacity", constNum.opacityHighlight);
+                //nodes["_groups"][0][i].opacity = constNum.opacity;
+                //labels["_groups"][0][i].opacity = 0.3;
+            }
+        });
+        textLabel.attr("x",function(data){return data.x;})
+                .attr("y",function(data){return data.y+Math.sqrt(data['val'])*70+10;})
+                .text(function(data,id){
+                    if(data.neighbor.indexOf(index) != -1){
+                        return collaMap[index][id];
+                    }
+                    else if(id == index){
+                        return data.cnt;
+                    }
+                    else
+                    {
+                        return "";
+                    }
+                })
+        link.attr("opacity",function(d){
+            if(d.source.index == data.index || d.target.index == data.index){
+                return 1;
+            }else{
+                return  0.1;
+            }
+        })
+    }
+    function mouseout(){
+        d3.select(".details").style("display", "none");
+        are_chord.attr("opacity", 0.4);
+        nodes.attr("opacity",function(d) {
+            return constNum.opacityHighlight;
+        });
+        nodes.attr("stroke", null);
+        labels.attr("opacity",1);
+        textLabel.text(function(data){
+            return data.cnt;
+        });
+        link.attr("opacity",0.4);
+        d3.selectAll(".deactive").classed("deactive", false);
+    }
+    
+    function click(d){
+        d3.selectAll("#Pack circle."+d.name).each(function(d, i){
+            var onClickFunc = d3.select(this).on("click");
+            onClickFunc.apply(this, [d, i]);
+        });
+    }
+}
 
 /* 与infoInit类似 */
 function seriesInit(){
@@ -392,12 +841,8 @@ function drawPack(d){
     const root = pack(data);
     let focus = root;
     let view;
-    let color = d3.scaleLinear()
-        .domain([0, 5])
-        .range(["hsl(200,60%,50%)", "hsl(200,60%,50%)"])
-        .interpolate(d3.interpolateHcl)
 
-    const svg = d3.select("svg")
+    const svg = d3.select("#Pack")
         .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
         .on("click", () => zoom(root));
 
@@ -405,7 +850,8 @@ function drawPack(d){
         .selectAll("circle")
         .data(root.descendants().slice(1).sort((a, b)=>a.data.key-b.data.key))
         .join("circle")
-        .attr("fill", d => d.depth != 2 ? color(d.depth) : "#eeeeee")
+        .attr("fill", d => d.depth != 2 ? "rgb(51, 153, 204)" : "#ffffff")
+        .attr("stroke", "rgb(51, 153, 204)")
         .attr("class", d => "Data "+d.data.name)
         .attr("pointer-events", null)
         .on("mouseover", function(d) {select(d); d3.select(this).attr("stroke", "#000"); })
@@ -414,7 +860,7 @@ function drawPack(d){
         .on("click", d => click(d));
 
     const label = svg.select("g[class=label]")
-        .style("font", "10px sans-serif")
+        .attr("font", "10px sans-serif")
         .attr("pointer-events", "none")
         .attr("text-anchor", "middle")
         .selectAll("text")
@@ -462,13 +908,13 @@ function drawPack(d){
         if(d.depth != 2){
             zoom(d);
         } else {
-            if($(event.target).attr("select") === "true"){
-                $(event.target).attr("select", "false");
+            if($("#Pack circle."+d.data.name).attr("select") === "true"){
+                $("#Pack circle."+d.data.name).attr("select", "false");
                 selectCnt--;
                 drawSeries(d.data.name, false);
                 drawInfo($("#spinner input").val());
             }else{
-                $(event.target).attr("select", "true");
+                $("#Pack circle."+d.data.name).attr("select", "true");
                 if(selectCnt >= maxWords){
                     window.alert("最多选择"+maxWords+"个关键词！");
                     return;
@@ -538,7 +984,6 @@ function drawPack(d){
         if(!visited[i]){
             data['children'][i]['children'].push({'name': d['keywords'][i], 'value': 0, 'key': i + n});
         }
-        console.log(data);
         return data;
     }
 }
@@ -556,7 +1001,7 @@ function matrixInit(){
         .attr("class", "background")
         .attr("width", width)
         .attr("height", height)
-        .style('fill', '#eee');
+        .attr('fill', '#eee');
 }
 function drawMatrix(rawData){
     let margin = {top: 50, right: 0, bottom: 10, left: 50},
@@ -605,7 +1050,7 @@ function drawMatrix(rawData){
         .data([1])
         .join(enter=>enter.append("line"))
         .attr("x2", width)
-        .style('stroke', 'white');
+        .attr('stroke', 'white');
 
     row.selectAll("text")
         .data((d, i)=>[nodes[i].name])
@@ -627,7 +1072,7 @@ function drawMatrix(rawData){
         .data([1])
         .join(enter=>enter.append("line"))
         .attr("x1", -width)
-        .style('stroke', 'white');
+        .attr('stroke', 'white');
     
     column.selectAll("text")
         .data((d, i)=>[nodes[i].name])
@@ -651,7 +1096,7 @@ function drawMatrix(rawData){
             .on("mouseout", mouseout)
             .on("mousemove", mouseover)
             .attr("fill", "#336699")
-            .style("fill-opacity", function(d) { return z(d.z); });
+            .attr("fill-opacity", function(d) { return z(d.z); });
     }
 
     function mouseover(d) {
@@ -661,6 +1106,7 @@ function drawMatrix(rawData){
         d3.selectAll("#Series ."+nodes[d.x].name).raise();
         d3.selectAll("#Series ."+nodes[d.y].name).raise();
         d3.selectAll("#Pack circle."+nodes[d.y].name).attr("stroke", "#000");
+        d3.selectAll("#Pack circle."+nodes[d.x].name).attr("stroke", "#000");
         showInfo2(rawData["year"], nodes[d.x].name, nodes[d.y].name, nodes[d.x].cnt, nodes[d.y].cnt, d.z);
         //d3.selectAll(".row").classed("active", function(d, i) { return i == p.y; });
         //d3.selectAll(".column").classed("active", function(d, i) { return i == p.x; });
@@ -668,7 +1114,8 @@ function drawMatrix(rawData){
 
     function mouseout(d) {
         d3.selectAll(".deactive").classed("deactive", false);
-        d3.selectAll("#Pack circle."+nodes[d.y].name).attr("stroke", null);
+        d3.selectAll("#Pack circle."+nodes[d.y].name).attr("stroke", "rgb(51, 153, 204)");
+        d3.selectAll("#Pack circle."+nodes[d.x].name).attr("stroke", "rgb(51, 153, 204)");
         d3.select(".details").style("display", "none");
         //d3.selectAll(".row").classed("active", false);
         //d3.selectAll(".column").classed("active", false);
@@ -700,7 +1147,8 @@ function drawMatrix(rawData){
 function main(){
     selectedYear = $("#spinner input").val()-1999;
     drawPack(data[selectedYear]);
-    drawMatrix(data[selectedYear]);
+    //drawMatrix(data[selectedYear]);
+    drawNode(data[selectedYear]);
     drawInfo($("#spinner input").val());
 }
 
@@ -711,7 +1159,7 @@ $("#spinner").spinner('changing', function(e, newVal, oldVal) {
 d3.json('data/clustering.json').then(function(d){
     data = d;
     packInit();
-    matrixInit();
+    //matrixInit();
     seriesInit();
     main();
 });

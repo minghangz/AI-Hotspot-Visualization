@@ -90,7 +90,7 @@ body{
     visibility: visible;
 }
 
-#Pack-container{
+#Node-container{
    display: block;
    position: relative;
 }
@@ -128,6 +128,22 @@ body{
 }
 #Matrix-container{
     position: relative;
+    margin: 0px;
+    float: left;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    height: 410px;
+    width: 400px;
+    border: 1px solid rgb(187, 187, 187);
+    display: block;
+    background: rgb(255, 255, 255);
+    position: relative;
+}
+#Pack-container{
+    position: relative;
+    padding: 0px;
     margin: 0px;
     float: left;
     left: 0px;
@@ -220,16 +236,27 @@ body{
 }
 #Pack{
     background-color: #ffffff;
-    margin: 22px 0px 0px 0px;
+    margin: 10px 0px 0px 0px;
     display:block;
     cursor:pointer;
+    transform: scale(0.8);
 }
 #Pack .deactive{
     transition: 0.5s;
-    opacity: 0.5;
+    opacity: 0.3;
 }
-[select=true]{
+#Node .deactive{
+    transition: 0.5s;
+    opacity: 0.1;
+}
+#Node .Data{
+    cursor: pointer;
+}
+#Pack [select=true]{
     fill: #FFFFCC;
+}
+#Node circle[select=true]{
+    stroke: black;
 }
 
 .entry {
