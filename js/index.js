@@ -539,6 +539,7 @@ function drawNode(graph){
         })
         .attr("class", d => "Data "+d.name)
         .attr("fill", d => color(d.group))
+        .attr("stroke", "white")
         .attr("opacity",function(d) {
             return constNum.opacityHighlight;
         });
@@ -657,7 +658,7 @@ function drawNode(graph){
         nodes.attr("opacity",function(d) {
             return constNum.opacityHighlight;
         });
-        nodes.attr("stroke", null);
+        nodes.attr("stroke", "white");
         labels.attr("opacity",1);
         textLabel.text(function(data){
             return data.cnt;
@@ -855,7 +856,7 @@ function drawPack(d){
         .attr("class", d => "Data "+d.data.name)
         .attr("pointer-events", null)
         .on("mouseover", function(d) {select(d); d3.select(this).attr("stroke", "#000"); })
-        .on("mouseout", function() {unselect(); d3.select(this).attr("stroke", null); })
+        .on("mouseout", function() {unselect(); d3.select(this).attr("stroke", "rgb(51, 153, 204)"); })
         .on("mousemove", function(d) {select(d); d3.select(this).attr("stroke", "#000"); })
         .on("click", d => click(d));
 
